@@ -6,6 +6,7 @@
 <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
 
 <script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
+<script type="text/javascript" src="webgl-utils.js"></script>
 
 <!--Frag Shader-->
 <script id="shader-fs" type="x-shader/x-fragment">
@@ -17,7 +18,14 @@
 	float cy;
 	float c;
 	float z;
+    const float max_iter = 1200000.0;
 	float iterations;
+
+    uniform float uScaleX;
+    uniform float uScaleY;
+
+    uniform float uX;
+    uniform float uY;
 
 	void main(void) {
 	
@@ -26,15 +34,15 @@
 		vec2 z, c;
 		
 		//Shift to center and scale
-		c.x = (gl_FragCoord.x - 250.0) * 0.005;
-		c.y = (gl_FragCoord.y - 250.0) * 0.005;
+		c.x = (gl_FragCoord.x  + uX - 250.0) * uScaleX;
+		c.y = (gl_FragCoord.y  + uY - 250.0) * uScaleY;
 		//c = (cx * cx) + (cy * cy);
 		
 		//Initial pass Z = 0 -> Z = C
 		z = c;
 
 		//1200 Iterations
-		for(int i = 0; i < 1200; i++){
+		for(float i = 0.0; i < max_iter; i++){
 				
 		//Z = Z^2 + C
 		//Z = (X,Y) C = (X,Y)
@@ -54,13 +62,13 @@
 											
 		}
 		
-		if(iterations < 1200.0){
-			gl_FragColor = vec4(0.0,iterations/10.0,0.0,1.0);
+		if(iterations < max_iter){
+			gl_FragColor = vec4(iterations/15.0,iterations/50.0,iterations/10.0,1.0);
 		}
 		else{
 			//Show how close to end of set result was
 			float result = z.x * z.x + z.y * z.y    ;  		
-			gl_FragColor = vec4(0.0,0.0,result / 0.4,1.0);
+			gl_FragColor = vec4(0.0,0.0,255.0,1.0);
 		}
 						 	
     }
@@ -166,9 +174,16 @@
         shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
         gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
 
-		//Pass uniform variables - can be accessed from outside the shader
+		//Setup uniform locations
         shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
         shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+        shaderProgram.uScaleUniformY = gl.getUniformLocation(shaderProgram, "uScaleY");
+        shaderProgram.uScaleUniformX = gl.getUniformLocation(shaderProgram, "uScaleX");
+        shaderProgram.uY = gl.getUniformLocation(shaderProgram, "uY");
+        shaderProgram.uX = gl.getUniformLocation(shaderProgram, "uX");
+        
+
+
     }
 
 	//Init matrices - model view + projection
@@ -180,6 +195,50 @@
         gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
         gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
     }
+
+
+    var currentlyPressedKeys = {};
+    var uScale = 0.005;
+    var translate_x = 0.0;
+    var translate_y = 0.0;
+
+    function handleKeyDown(event) {
+        currentlyPressedKeys[event.keyCode] = true;
+    }
+
+
+    function handleKeyUp(event) {
+        currentlyPressedKeys[event.keyCode] = false;
+    }
+
+
+    function handleKeys() {
+        if (currentlyPressedKeys[33]) {
+            // Page Up
+            uScale -= 0.000005;
+        }
+        if (currentlyPressedKeys[34]) {
+            // Page Down
+            uScale += 0.000005;
+        }
+        if (currentlyPressedKeys[37]) {
+            // Left cursor key
+            translate_x -= 5.0;
+        }
+        if (currentlyPressedKeys[39]) {
+            // Right cursor key
+            translate_x += 5.0;
+        }
+        if (currentlyPressedKeys[38]) {
+            // Up cursor key
+            translate_y -= 5.0;
+        }
+        if (currentlyPressedKeys[40]) {
+            // Down cursor key
+            translate_y += 5.0;
+        }
+    }
+
 
 	//Global buffer vars
     var squareVertexPositionBuffer;
@@ -200,8 +259,15 @@
         squareVertexPositionBuffer.numItems = 4;
     }
 
+
     function drawScene() {
 	
+
+        gl.uniform1f(shaderProgram.uScaleUniformX, uScale);
+        gl.uniform1f(shaderProgram.uScaleUniformY, uScale);
+       gl.uniform1f(shaderProgram.uX, translate_x);
+        gl.uniform1f(shaderProgram.uY, translate_y);
+
 		//Setup viewport size - width / height
         gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 		
@@ -222,7 +288,27 @@
         gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, squareVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
         setMatrixUniforms();
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, squareVertexPositionBuffer.numItems);
+
+
     }
+
+
+
+
+
+
+
+    //Each frame
+    function tick() {
+
+        requestAnimFrame(tick);
+        handleKeys();
+        drawScene();
+
+    }
+
+
+
 
     function webGLStart() {
 	
@@ -235,14 +321,22 @@
         initBuffers();
 	
 		//Set background to black
-        gl.clearColor(0.0, 0.0, 0.0, 1.0);
-        
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);        
 		//Enable depth testing
 		gl.enable(gl.DEPTH_TEST);
 
-		//Draw the scene
-        drawScene();
+        document.onkeydown = handleKeyDown;
+        document.onkeyup = handleKeyUp;
+
+		//Setup tick to redraw each frame
+        tick();
     }
+
+
+
+
+
+
 
 
 </script>
