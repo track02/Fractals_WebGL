@@ -28,7 +28,8 @@ TODO
 Next:
 
 
-- Juli
+- Julia
+- Sierpinski Triangle
 
 Finished:
 
