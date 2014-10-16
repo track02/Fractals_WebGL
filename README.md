@@ -12,8 +12,9 @@ Current:
 
 - Mandelbrot
 
-![My image](track02.github.com/WebGL/Images/MB/MB1.png)
-![My image](track02.github.com/WebGL/Images/MB/MB2.png)
+![MB1](/Images/MB/MB1.png?raw=true "Mandelbrot 1")
+![MB2](/Images/MB/MB2.png?raw=true "Mandelbrot 1")
+
 
 Next:
 
