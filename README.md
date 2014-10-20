@@ -31,6 +31,7 @@ Finished:
 
 
 - Julia
+-
 ![JL1](/Images/JL/JL1.png?raw=true "Julia 1")
 ![JL2](/Images/JL/JL2.png?raw=true "Julia 2")
 ![JL2](/Images/JL/JL3.png?raw=true "Julia 3")
