@@ -10,20 +10,19 @@
 
 <!--Frag Shader-->
 <script id="shader-fs" type="x-shader/x-fragment">
-
-    precision mediump float;
-		
+	
+	precision mediump float;
 	float cx;
 	float cy;
 	float c;
 	float z;
-    const float max_iter = 12000.0;
+    	const float max_iter = 12000.0;
 	float iterations;
 
 	
 	//Adjust Z scaling  Pg Up / Pg Down
-    uniform float uScaleX;
-    uniform float uScaleY;
+    	uniform float uScaleX;
+    	uniform float uScaleY;
 	
 	//Adjust seed scaling I/O
 	uniform float uSeedScaleX;
@@ -33,9 +32,9 @@
 	uniform float uSeedX;
 	//Adjust seed y
 	uniform float uSeedY;
-	
-    uniform float uX;
-    uniform float uY;
+		
+	uniform float uX;
+	uniform float uY;
 
 	void main(void) {
 	
@@ -58,15 +57,15 @@
 				
 		//Z = Z^2 + C
 		//Z = (X,Y) C = (X,Y)
-			//Z * Z = ((zX * zX - zY * zY) + cX, (zX * zY + zX * zY) + cY)
+		//Z * Z = ((zX * zX - zY * zY) + cX, (zX * zY + zX * zY) + cY)
 					
-        float x = (z.x * z.x - z.y * z.y) + c.x;
-        float y = (z.y * z.x + z.x * z.y) + c.y;
+		float x = (z.x * z.x - z.y * z.y) + c.x;
+        	float y = (z.y * z.x + z.x * z.y) + c.y;
 
-			iterations += 1.0;
+		iterations += 1.0;
 			
-			//Passed limit - break early
-			if((x * x + y * y) > 4.0) break;
+		//Passed limit - break early
+		if((x * x + y * y) > 4.0) break;
 			
 			//Or update Z
 			z.x = x;
@@ -87,308 +86,292 @@
 
 <!-- Vertex Shader -->
 <script id="shader-vs" type="x-shader/x-vertex">
-    attribute vec3 aVertexPosition;
 
-    uniform mat4 uMVMatrix;
-    uniform mat4 uPMatrix;
+	attribute vec3 aVertexPosition;
+	uniform mat4 uMVMatrix;
+	uniform mat4 uPMatrix;
 
-    void main(void) {
+    	void main(void) {
 		//Apply perspective matrix and modelview matrix (transformations) to each vertex
-        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-    }
+		gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+    	}
 </script>
 
 
 <script type="text/javascript">
 
 	//WebGL Context
-    var gl;
+    	var gl;
 	
-    function initGL(canvas) {
-        try {
+    	function initGL(canvas) {
+        	try {
 			
 			//Get context from canvas
-            gl = canvas.getContext("experimental-webgl");
+            		gl = canvas.getContext("experimental-webgl");
 			//Push properties - viewport dimensions
-            gl.viewportWidth = canvas.width;
-            gl.viewportHeight = canvas.height;
-        } catch (e) {
-        }
-        if (!gl) {
-            alert("Could not initialise WebGL");
-        }
+        		gl.viewportWidth = canvas.width;
+            		gl.viewportHeight = canvas.height;
+        	}
+        	catch (e) { }
+        	
+        	if (!gl) {
+            		alert("Could not initialise WebGL");
+        	}
     }
 
 	//Searches HTML elements for matching id containing shader GLSL implementation
 	//When found creates shader and returns it
-    function getShader(gl, id) {
-        var shaderScript = document.getElementById(id);
-        if (!shaderScript) {
-            return null;
-        }
+	function getShader(gl, id) {
+		
+        	var shaderScript = document.getElementById(id);
+        	
+        	if (!shaderScript) {
+            		return null;
+        	}
 
 		//Build string of shader GLSL
-        var str = "";
-        var k = shaderScript.firstChild;
+        	var str = "";
+        	var k = shaderScript.firstChild;
+		
 		//While K has a child
-        while (k) {
+        	while (k) {
 			//If text, add to string
-            if (k.nodeType == 3) {
-                str += k.textContent;
-            }
-            k = k.nextSibling;
-        }
+            		if (k.nodeType == 3) {
+                		str += k.textContent;
+            		}
+            		k = k.nextSibling;
+        	}
 
 		//Compile shader from string and return
-        var shader;
-        if (shaderScript.type == "x-shader/x-fragment") {
-            shader = gl.createShader(gl.FRAGMENT_SHADER);
-        } else if (shaderScript.type == "x-shader/x-vertex") {
-            shader = gl.createShader(gl.VERTEX_SHADER);
-        } else {
-            return null;
-        }
+        	var shader;
+        	if (shaderScript.type == "x-shader/x-fragment") {
+            		shader = gl.createShader(gl.FRAGMENT_SHADER);
+        	} 
+        	else if (shaderScript.type == "x-shader/x-vertex") {
+            		shader = gl.createShader(gl.VERTEX_SHADER);
+        	} else {
+            		return null;
+        	}
 
-        gl.shaderSource(shader, str);
-        gl.compileShader(shader);
+        	gl.shaderSource(shader, str);
+        	gl.compileShader(shader);
 
-        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-            alert(gl.getShaderInfoLog(shader));
-            return null;
-        }
+        	if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            		alert(gl.getShaderInfoLog(shader));
+            		return null;
+        	}
 
-        return shader;
-    }
+        	return shader;
+    	}
 
-    var shaderProgram;
+    	var shaderProgram;
 
-    function initShaders() {
+    	function initShaders() {
 		
 		//Create shaders - frag + Vertex
-        var fragmentShader = getShader(gl, "shader-fs");
-        var vertexShader = getShader(gl, "shader-vs");
+        	var fragmentShader = getShader(gl, "shader-fs");
+        	var vertexShader = getShader(gl, "shader-vs");
 
 		//Create and setup program - runs our shaders on graphics card
-        shaderProgram = gl.createProgram();
-        gl.attachShader(shaderProgram, vertexShader);
-        gl.attachShader(shaderProgram, fragmentShader);
-        gl.linkProgram(shaderProgram);
+        	shaderProgram = gl.createProgram();
+        	gl.attachShader(shaderProgram, vertexShader);
+        	gl.attachShader(shaderProgram, fragmentShader);
+        	gl.linkProgram(shaderProgram);
 
-        if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-            alert("Could not initialise shaders");
-        }
+        	if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+            		alert("Could not initialise shaders");
+        	}
 		
-        gl.useProgram(shaderProgram);
+        	gl.useProgram(shaderProgram);
 
 		//Push new attributes to program
 		//vertexPositionAttribute - 
-        shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
-        gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+        	shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+        	gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
 
 		//Setup uniform locations
-        shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
-        shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+        	shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
+        	shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
 		
-        shaderProgram.uScaleUniformY = gl.getUniformLocation(shaderProgram, "uScaleY");
-        shaderProgram.uScaleUniformX = gl.getUniformLocation(shaderProgram, "uScaleX");
-        shaderProgram.uY = gl.getUniformLocation(shaderProgram, "uY");
-        shaderProgram.uX = gl.getUniformLocation(shaderProgram, "uX");
+        	shaderProgram.uScaleUniformY = gl.getUniformLocation(shaderProgram, "uScaleY");
+        	shaderProgram.uScaleUniformX = gl.getUniformLocation(shaderProgram, "uScaleX");
+        	shaderProgram.uY = gl.getUniformLocation(shaderProgram, "uY");
+        	shaderProgram.uX = gl.getUniformLocation(shaderProgram, "uX");
         
 
 		shaderProgram.uSeedScaleUniformY = gl.getUniformLocation(shaderProgram, "uSeedScaleY");
-        shaderProgram.uSeedScaleUniformX = gl.getUniformLocation(shaderProgram, "uSeedScaleX");
+        	shaderProgram.uSeedScaleUniformX = gl.getUniformLocation(shaderProgram, "uSeedScaleX");
 		shaderProgram.uSeedUniformX = gl.getUniformLocation(shaderProgram, "uSeedX");
 		shaderProgram.uSeedUniformY = gl.getUniformLocation(shaderProgram, "uSeedY");
 
-    }
+    	}
 
 	//Init matrices - model view + projection
-    var mvMatrix = mat4.create();
-    var pMatrix = mat4.create();
+    	var mvMatrix = mat4.create();
+    	var pMatrix = mat4.create();
 
 	//Pass WebGL modelview / projection matrices for use in shaders
-    function setMatrixUniforms() {
-        gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
-        gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
-    }
+    	function setMatrixUniforms() {
+        	gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
+        	gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
+    	}	
 
 
-    var currentlyPressedKeys = {};
-    var uScale = 0.005;
+    	var currentlyPressedKeys = {};
+    	var uScale = 0.005;
 	var uSeedScale = 0.005;
-    var translate_x = 0.0;
-    var translate_y = 0.0;
+    	var translate_x = 0.0;
+    	var translate_y = 0.0;
 	var uSeedX = 10;
 	var uSeedY = 15;
 
-    function handleKeyDown(event) {
-        currentlyPressedKeys[event.keyCode] = true;
-    }
+    	function handleKeyDown(event) {
+        	currentlyPressedKeys[event.keyCode] = true;
+    	}
 
 
-    function handleKeyUp(event) {
-        currentlyPressedKeys[event.keyCode] = false;
-    }
+    	function handleKeyUp(event) {
+        	currentlyPressedKeys[event.keyCode] = false;
+    	}
 
 
-    function handleKeys() {
-        if (currentlyPressedKeys[33]) {
-            // Page Up
-            uScale -= 0.000005;
-        }
-        if (currentlyPressedKeys[34]) {
-            // Page Down
-            uScale += 0.000005;
-        }
-        if (currentlyPressedKeys[37]) {
-            // Left  key
-            translate_x -= 5.0;
-        }
-        if (currentlyPressedKeys[39]) {
-            // Right  key
-            translate_x += 5.0;
-        }
-        if (currentlyPressedKeys[38]) {
-            // Up  key
-            translate_y += 5.0;
-        }
-        if (currentlyPressedKeys[40]) {
-            // Down  key
-            translate_y -= 5.0;
-        }
+    	function handleKeys() {
+        	if (currentlyPressedKeys[33]) {
+            		// Page Up
+            		uScale -= 0.000005;
+        	}
+        	if (currentlyPressedKeys[34]) {
+            		// Page Down
+            		uScale += 0.000005;
+        	}
+        	if (currentlyPressedKeys[37]) {
+            		// Left  key
+            		translate_x -= 5.0;
+        	}
+        	if (currentlyPressedKeys[39]) {
+            		// Right  key
+            		translate_x += 5.0;
+        	}
+        	if (currentlyPressedKeys[38]) {
+            		// Up  key
+            		translate_y += 5.0;
+        	}
+        	if (currentlyPressedKeys[40]) {
+            		// Down  key
+            		translate_y -= 5.0;
+        	}
 		if (currentlyPressedKeys[73]) {
-            // i key
-             uSeedScale -= 0.000005;
-        }
-        if (currentlyPressedKeys[79]) {
-            // o cursor key
-            uSeedScale += 0.000005;
-        }
+            		// i key
+             		uSeedScale -= 0.000005;
+        	}
+        	if (currentlyPressedKeys[79]) {
+            		// o cursor key
+            		uSeedScale += 0.000005;
+        	}
 		if (currentlyPressedKeys[90]) {
-            // z key
-             uSeedX -= 1.0;
-        }
-        if (currentlyPressedKeys[88]) {
-            // x cursor key
-            uSeedX += 1.0;
-        }
+            		// z key
+             		uSeedX -= 1.0;
+        	}
+        	if (currentlyPressedKeys[88]) {
+            		// x cursor key
+            		uSeedX += 1.0;
+        	}
 		if (currentlyPressedKeys[65]) {
-            // a key
-            uSeedY -= 1.0;
-        }
-        if (currentlyPressedKeys[83]) {
-            // s cursor key
-            uSeedY += 1.0;
-        }
-		
-		
-		
-    }
+            		// a key
+            		uSeedY -= 1.0;
+        	}
+        	if (currentlyPressedKeys[83]) {
+            		// s cursor key
+            		uSeedY += 1.0;
+        	}
+	}
 
 
 	//Global buffer vars
-    var squareVertexPositionBuffer;
+    	var squareVertexPositionBuffer;
 
-    function initBuffers() {
+    	function initBuffers() {
 	
 		//Repeat for square buffer
-        squareVertexPositionBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
-        vertices = [
-             1.0, 1.0, -1.0,
-            -1.0, 1.0, -1.0,
-             1.0, -1.0, -1.0,
-            -1.0, -1.0, -1.0
-        ];
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-        squareVertexPositionBuffer.itemSize = 3;
-        squareVertexPositionBuffer.numItems = 4;
-    }
+        	squareVertexPositionBuffer = gl.createBuffer();
+        	gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
+        	vertices = [
+             		1.0, 1.0, -1.0,
+            		-1.0, 1.0, -1.0,
+             		1.0, -1.0, -1.0,
+            		-1.0, -1.0, -1.0
+        		];
+        	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+        	squareVertexPositionBuffer.itemSize = 3;
+        	squareVertexPositionBuffer.numItems = 4;
+    	}
 
 
-    function drawScene() {
+    	function drawScene() {
 	
 
-        gl.uniform1f(shaderProgram.uScaleUniformX, uScale);
-        gl.uniform1f(shaderProgram.uScaleUniformY, uScale);
+        	gl.uniform1f(shaderProgram.uScaleUniformX, uScale);
+        	gl.uniform1f(shaderProgram.uScaleUniformY, uScale);
 		gl.uniform1f(shaderProgram.uX, translate_x);
-        gl.uniform1f(shaderProgram.uY, translate_y);
+        	gl.uniform1f(shaderProgram.uY, translate_y);
 		gl.uniform1f(shaderProgram.uSeedScaleUniformX, uSeedScale);
-        gl.uniform1f(shaderProgram.uSeedScaleUniformY, uSeedScale);
+        	gl.uniform1f(shaderProgram.uSeedScaleUniformY, uSeedScale);
 		gl.uniform1f(shaderProgram.uSeedUniformX, uSeedX);
-        gl.uniform1f(shaderProgram.uSeedUniformY, uSeedY);
+        	gl.uniform1f(shaderProgram.uSeedUniformY, uSeedY);
 		
 		
 		//Setup viewport size - width / height
-        gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+        	gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 		
 		//Clear canvas for drawing
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 		//Setup fov 45 and perspective 0.1 min 100 max view distance
-        mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix);
+        	mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix);
 
 		//Set modelview matrix as identity matrix - at origin (0,0) can now apply transforms
-        mat4.identity(mvMatrix);
+        	mat4.identity(mvMatrix);
 
 		//Move left and inwards
-        mat4.translate(mvMatrix, [0.0, 0.0, 0.0]);
+        	mat4.translate(mvMatrix, [0.0, 0.0, 0.0]);
 		
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
-        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, squareVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
-        setMatrixUniforms();
-        gl.drawArrays(gl.TRIANGLE_STRIP, 0, squareVertexPositionBuffer.numItems);
+        	gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
+        	gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, squareVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+        	setMatrixUniforms();
+        	gl.drawArrays(gl.TRIANGLE_STRIP, 0, squareVertexPositionBuffer.numItems);
 
 
-    }
+    	}
 
+	//Each frame
+  	function tick() {
+        	requestAnimFrame(tick);
+        	handleKeys();
+        	drawScene();
+    	}
 
-
-
-
-
-
-    //Each frame
-    function tick() {
-
-        requestAnimFrame(tick);
-        handleKeys();
-        drawScene();
-
-    }
-
-
-
-
-    function webGLStart() {
+	function webGLStart() {
 	
 		//Sets up canvas
-        var canvas = document.getElementById("Canvas");
+        	var canvas = document.getElementById("Canvas");
 		
 		//Initialise GL, Shaders and Buffers
-        initGL(canvas);
-        initShaders();
-        initBuffers();
+        	initGL(canvas);
+        	initShaders();
+        	initBuffers();
 	
 		//Set background to black
-        gl.clearColor(0.0, 0.0, 0.0, 1.0);        
+        	gl.clearColor(0.0, 0.0, 0.0, 1.0);        
 		//Enable depth testing
 		gl.enable(gl.DEPTH_TEST);
 
-        document.onkeydown = handleKeyDown;
-        document.onkeyup = handleKeyUp;
+        	document.onkeydown = handleKeyDown;
+        	document.onkeyup = handleKeyUp;
 
 		//Setup tick to redraw each frame
-        tick();
-    }
-
-
-
-
-
-
-
+        	tick();
+    	}
 
 </script>
 
@@ -398,7 +381,6 @@
 <body onload="webGLStart();">
 
     <canvas id="Canvas" style="border: none;" width="500" height="500"></canvas>
-
     <br/>
 </body>
 
