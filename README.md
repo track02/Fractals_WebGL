@@ -1,9 +1,8 @@
 WebGL
 =====
 
-WebGL Projects
+WebGL Fractal Creation
 
-- Currently working on drawing fractals
 
 
 TODO
