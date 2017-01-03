@@ -6,6 +6,7 @@ WebGL Fractal Creation
 
 
 TODO
+  
   - Improve control system, adjust scaling as you zoom in
     - Use mouse
     
@@ -16,12 +17,9 @@ TODO
   - Tidy up & comment code
     - Group uniforms as vectors instead of single floats  
 
+  - Sierpinski Triangle
 
-Next:
-
-- Sierpinski Triangle
-
-Finished:
+Examples:
 
 - Mandelbrot
 
@@ -30,7 +28,7 @@ Finished:
 
 
 - Julia
--
+
 ![JL1](/Images/JL/JL1.png?raw=true "Julia 1")
 ![JL2](/Images/JL/JL2.png?raw=true "Julia 2")
 ![JL2](/Images/JL/JL3.png?raw=true "Julia 3")
