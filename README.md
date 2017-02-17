@@ -12,8 +12,6 @@ TODO
     
    - Allow user input for colouring / iterations / texturing
   
-  - Allow loading of external frag shaders for different fractals
-
   - Tidy up & comment code
     - Group uniforms as vectors instead of single floats  
 
