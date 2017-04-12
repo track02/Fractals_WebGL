@@ -1,9 +1,9 @@
 WebGL - Fractal Plotter
 =====
 
-##Installation and Instructions
+## Installation and Instructions
 
-Download and run FractalDrawing.html in your web browser.
+Download and load FractalDrawing.html in your web browser.
 
 Control Scheme:
 
@@ -14,7 +14,7 @@ A / S - Change Seed Value (Y)
 0 - Draw Julia Set
 1 - Draw Mandelbrot Set
 
-##Examples:
+## Examples:
 
 - Mandelbrot
 
@@ -29,7 +29,7 @@ A / S - Change Seed Value (Y)
 ![JL2](/Images/JL/JL3.png?raw=true "Julia 3")
 
 
-##Potential Improvements
+## Potential Improvements
   
   - Improve control system, allow mouse control & proper zoom/fov change
     
