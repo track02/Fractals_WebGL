@@ -8,10 +8,15 @@ Download and load FractalDrawing.html in your web browser.
 Control Scheme:
 
 Arrow Keys (Up/Down/Left/Right) - Translate (X/Y)
+
 PgUp / PgDn - Translate (Z)
+
 X / Z - Change Seed Value (X)
+
 A / S - Change Seed Value (Y)
+
 0 - Draw Julia Set
+
 1 - Draw Mandelbrot Set
 
 ## Examples:
